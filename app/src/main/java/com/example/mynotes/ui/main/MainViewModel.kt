@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import com.example.mynotes.models.TaskList
 
 class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewModel() {
+    lateinit var onTaskAdded: () -> Unit
+    lateinit var list: TaskList
+
     lateinit var onListAdded: (() -> Unit)
 
     val lists: MutableList<TaskList> by lazy {
@@ -40,5 +43,10 @@ class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewMode
     fun refreshLists() {
         lists.clear()
         lists.addAll(retrieveLists())
+    }
+
+    fun addTask(task: String) {
+        list.tasks.add(task)
+        onTaskAdded.invoke()
     }
 }

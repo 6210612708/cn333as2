@@ -7,10 +7,13 @@ import android.os.Bundle
 import android.text.InputType
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.example.mynotes.databinding.MainActivityBinding
 import com.example.mynotes.models.TaskList
+import com.example.mynotes.ui.detail.ListDetailFragment
 import com.example.mynotes.ui.main.MainFragment
 import com.example.mynotes.ui.main.MainViewModel
 import com.example.mynotes.ui.main.MainViewModelFactory
@@ -31,9 +34,17 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
 
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance(this))
-                .commitNow()
+            val mainFragment = MainFragment.newInstance()
+            mainFragment.clickListener = this
+            val fragmentContainerViewId: Int = if (binding.mainFragmentContainer == null) {
+                R.id.container }
+            else {
+                R.id.main_fragment_container
+            }
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                add(fragmentContainerViewId, mainFragment)
+            }
         }
 
         binding.taskListAddButton.setOnClickListener {
@@ -62,11 +73,39 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         builder.create().show()
     }
 
-    private fun showListDetail(list: TaskList) {
+    private fun showCreateTaskDialog() {
+        val taskEditText = EditText(this)
+        taskEditText.inputType = InputType.TYPE_CLASS_TEXT
 
-        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
-        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
-        startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.task_to_add)
+            .setView(taskEditText)
+            .setPositiveButton(R.string.add_task) { dialog, _ ->
+                val task = taskEditText.text.toString()
+                viewModel.addTask(task)
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showListDetail(list: TaskList) {
+        if (binding.mainFragmentContainer == null){
+            val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+            listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+            startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+        } else {
+            val bundle = bundleOf(INTENT_LIST_KEY to list)
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                replace(R.id.list_detail_fragment_container, ListDetailFragment::class.java, bundle, null)
+
+            }
+            binding.taskListAddButton.setOnClickListener{
+                showCreateTaskDialog()
+            }
+        }
+
     }
 
     companion object {
@@ -80,9 +119,26 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == LIST_DETAIL_REQUEST_CODE && resultCode == Activity.RESULT_OK)
+        if (requestCode == LIST_DETAIL_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.let {
                 viewModel.updateList(data.getParcelableExtra(INTENT_LIST_KEY)!!)
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        val listDetailFragment = supportFragmentManager.findFragmentById(R.id.list_detail_fragment_container)
+        if (listDetailFragment == null) {
+            super.onBackPressed()
+        } else {
+            title = resources.getString(R.string.app_name)
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                remove(listDetailFragment)
+            }
+            binding.taskListAddButton.setOnClickListener {
+                showCreateListDialog()
+            }
+        }
     }
 }

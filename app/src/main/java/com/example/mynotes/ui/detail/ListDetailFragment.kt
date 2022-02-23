@@ -6,21 +6,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mynotes.MainActivity
 import com.example.mynotes.R
 import com.example.mynotes.databinding.ListDetailFragmentBinding
-
-
+import com.example.mynotes.models.TaskList
+import com.example.mynotes.ui.main.MainViewModel
+import com.example.mynotes.ui.main.MainViewModelFactory
 
 
 class ListDetailFragment : Fragment() {
+
     lateinit var binding: ListDetailFragmentBinding
 
     companion object {
         fun newInstance() = ListDetailFragment()
     }
 
-    private lateinit var viewModel: ListDetailViewModel
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,17 +36,24 @@ class ListDetailFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity()).get(ListDetailViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity(),
+            MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(requireContext()))
+        )
+            .get(MainViewModel::class.java)
+        val list: TaskList? = arguments?.getParcelable(MainActivity.INTENT_LIST_KEY)
+        list?.let {
+            viewModel.list = list
+            requireActivity().title = list.name
+        }
         val adapter = ListItemRecycleViewAdapter(viewModel.list)
 
         binding.listItemsRecyclerview.adapter = adapter
         binding.listItemsRecyclerview.layoutManager = LinearLayoutManager(requireContext())
-//        binding.listItemsRecyclerview.adapter = adapter
-//        binding.listItemsRecyclerview.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel.onTaskAdded = {
             adapter.notifyDataSetChanged()
         }
+
     }
 
 }

@@ -8,18 +8,24 @@ import android.text.InputType
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.example.mynotes.databinding.ListDetailActivityBinding
 import com.example.mynotes.models.TaskList
 import com.example.mynotes.ui.detail.ListDetailFragment
 import com.example.mynotes.ui.detail.ListDetailViewModel
+import com.example.mynotes.ui.main.MainViewModel
+import com.example.mynotes.ui.main.MainViewModelFactory
 
 class ListDetailActivity : AppCompatActivity() {
     private lateinit var binding: ListDetailActivityBinding
-    private lateinit var viewModel: ListDetailViewModel
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ListDetailViewModel::class.java)
+        viewModel = ViewModelProvider(this,
+            MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(this))
+        )
+            .get(MainViewModel::class.java)
         binding = ListDetailActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.addTaskButton.setOnClickListener {

@@ -17,10 +17,11 @@ import org.intellij.lang.annotations.JdkConstants
 //binding class : MainActivityBinding
 //layout: main_activity.xml
 //binding class : MainFragmentBinding
-class MainFragment(val clickListener: MainFragmentInteractionListener) :
+class MainFragment() :
     Fragment(), ListSelectionRecycleViewAdapter.ListSelectionRecycleViewClickListener {
 
     private lateinit var binding: MainFragmentBinding
+    lateinit var clickListener: MainFragmentInteractionListener
 
     interface MainFragmentInteractionListener {
         fun listItemTapped(list: TaskList)
@@ -28,7 +29,7 @@ class MainFragment(val clickListener: MainFragmentInteractionListener) :
 
 
     companion object {
-        fun newInstance(clickListener: MainFragmentInteractionListener) = MainFragment(clickListener)
+        fun newInstance() = MainFragment()
     }
 
     private lateinit var viewModel: MainViewModel
