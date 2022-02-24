@@ -8,25 +8,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.mynotes.R
 import com.example.mynotes.databinding.MainFragmentBinding
-import com.example.mynotes.models.TaskList
-import org.intellij.lang.annotations.JdkConstants
+import com.example.mynotes.models.Noted
 
 //layout: main_activity.xml
 //binding class : MainActivityBinding
 //layout: main_activity.xml
 //binding class : MainFragmentBinding
 class MainFragment() :
-    Fragment(), ListSelectionRecycleViewAdapter.ListSelectionRecycleViewClickListener {
+    Fragment(), ListSelectionRecycleViewAdapter.ListSelectionRecyclerViewClickListener {
 
     private lateinit var binding: MainFragmentBinding
-    lateinit var clickListener: MainFragmentInteractionListener
+    var clickListener: MainFragmentInteractionListener? = null
+    var holdClickListener: MainFragmentInteractionListener? = null
 
     interface MainFragmentInteractionListener {
-        fun listItemTapped(list: TaskList)
+        fun listItemTapped(list: Noted)
+        fun listItemHold(list: Noted)
     }
-
 
     companion object {
         fun newInstance() = MainFragment()
@@ -35,11 +34,11 @@ class MainFragment() :
     private lateinit var viewModel: MainViewModel
 
     override fun onCreateView(
+
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = MainFragmentBinding.inflate(inflater, container, false)
-        //id: lists_recycleview => listsRecycleview
         binding.listsRecycleview.layoutManager = LinearLayoutManager(requireContext())
 
         return binding.root
@@ -51,15 +50,23 @@ class MainFragment() :
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(requireActivity())))
             .get(MainViewModel::class.java)
 
-        val recycleViewAdapter = ListSelectionRecycleViewAdapter(viewModel.lists, this)
-        binding.listsRecycleview.adapter = recycleViewAdapter
+        val recyclerViewAdapter = ListSelectionRecycleViewAdapter(viewModel.lists, this,this)
+        binding.listsRecycleview.adapter = recyclerViewAdapter
         viewModel.onListAdded = {
-            recycleViewAdapter.listsUpdated()
+            recyclerViewAdapter.listsUpdated()
+        }
+        viewModel.onListRemoved ={
+            recyclerViewAdapter.listsRemove(viewModel.whereRemoved)
+
         }
     }
-
-    override fun listItemClicked(list: TaskList) {
-        clickListener.listItemTapped(list)
+    override fun listItemClicked(list: Noted) {
+        clickListener?.listItemTapped(list)
     }
+
+    override fun listItemHold(list: Noted) {
+        holdClickListener?.listItemHold(list)
+    }
+
 
 }
