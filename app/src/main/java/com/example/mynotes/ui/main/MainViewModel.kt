@@ -32,7 +32,7 @@ class MainViewModel(val sharedPreferences: SharedPreferences) : ViewModel() {
         return noteLists
     }
 
-    fun createList(list: Noted) {
+    fun create(list: Noted) {
         val editor = sharedPreferences.edit()
         val text: String = list.content
         editor.putString(list.name, text)
@@ -41,7 +41,7 @@ class MainViewModel(val sharedPreferences: SharedPreferences) : ViewModel() {
         onListAdded.invoke()
     }
 
-    fun saveList(list: Noted) {
+    fun saveNoted(list: Noted) {
         val editor = sharedPreferences.edit()
         val text: String = list.content
         editor.putString(list.name, text)
@@ -49,15 +49,15 @@ class MainViewModel(val sharedPreferences: SharedPreferences) : ViewModel() {
         Log.d(ContentValues.TAG, list.content)
     }
 
-    fun updateList(list: Noted) {
+    fun updateNoted(list: Noted) {
         val editor = sharedPreferences.edit()
         val text: String = list.content
         editor.putString(list.name, text)
         editor.apply()
         Log.d(ContentValues.TAG, list.content)
-        refreshLists()
+        refreshNoted()
     }
-    fun removeList(list: Noted){
+    fun removeNoted(list: Noted){
         val index = lists.indexOf(list)
         whereRemoved = index
         lists.remove(list)
@@ -68,11 +68,11 @@ class MainViewModel(val sharedPreferences: SharedPreferences) : ViewModel() {
         editor.apply()
     }
 
-    fun findList(key: String): Boolean{
+    fun findNoted(key: String): Boolean{
         return sharedPreferences.contains(key)
     }
 
-    private fun refreshLists() {
+    private fun refreshNoted() {
         lists.clear()
         lists.addAll(retrieveLists())
     }

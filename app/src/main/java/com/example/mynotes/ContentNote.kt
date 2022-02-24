@@ -16,7 +16,7 @@ import com.example.mynotes.ui.detail.ContentFragment
 import com.example.mynotes.ui.main.MainViewModel
 import com.example.mynotes.ui.main.MainViewModelFactory
 
-class ContentNote : AppCompatActivity() {
+class ContentNote() : AppCompatActivity() {
     private lateinit var binding: ContentActivityBinding
     private lateinit var viewModel: MainViewModel
 
@@ -53,7 +53,7 @@ class ContentNote : AppCompatActivity() {
     override fun onBackPressed() {
         val editNoteText: EditText = findViewById(R.id.editTextTextMultiLine)
 
-        viewModel.saveList(Noted(viewModel.list.name,editNoteText.text.toString()))
+        viewModel.saveNoted(Noted(viewModel.list.name,editNoteText.text.toString()))
 
         val bundle = Bundle()
         bundle.putParcelable(MainActivity.INTENT_LIST_KEY,viewModel.list)

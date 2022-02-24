@@ -66,11 +66,11 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
 
         builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->
             dialog.dismiss()
-            if (viewModel.findList(listTitleEditText.text.toString())){
+            if (viewModel.findNoted(listTitleEditText.text.toString())){
                 Toast.makeText(this,"The name has been already taken", Toast.LENGTH_LONG).show()
             }else {
                 val noteList = Noted(listTitleEditText.text.toString(), "")
-                viewModel.createList(noteList)
+                viewModel.create(noteList)
                 showNote(noteList)
             }
         }
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
 
         builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->
             dialog.dismiss()
-            viewModel.removeList(list)
+            viewModel.removeNoted(list)
 
             viewModel = ViewModelProvider(this,
                 MainViewModelFactory(android.preference.PreferenceManager.getDefaultSharedPreferences(this))
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == LIST_DETAIL_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.let {
-                viewModel.updateList(data.getParcelableExtra(INTENT_LIST_KEY)!!)
+                viewModel.updateNoted(data.getParcelableExtra(INTENT_LIST_KEY)!!)
             }
         }
     }
@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         } else {
             title = resources.getString(R.string.app_name)
             val editNoteText: EditText = findViewById(R.id.editTextTextMultiLine)
-            viewModel.saveList(Noted(viewModel.list.name,editNoteText.text.toString()))
+            viewModel.saveNoted(Noted(viewModel.list.name,editNoteText.text.toString()))
             editNoteText.setText("")
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
